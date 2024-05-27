@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">tempo_isaq</string>
+    <string name="graus">20°C</string>
+    <string name="pais_estado">Brasil_Bahia</string>
+    <string name="info_view">info_view</string>
+    <string name="buscar_cidade">buscar cidade</string>
+    <string name="buscar">buscar</string>
+</resources>
