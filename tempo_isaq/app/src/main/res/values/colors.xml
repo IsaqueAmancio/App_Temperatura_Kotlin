@@ -4,4 +4,5 @@
     <color name="white">#FFFFFFFF</color>
     <color name="main_verde_escuro">#023535</color>
     <color name="main_verde_claro">#0FC2C0</color>
+    <color name="modo_escuro">#0B2B40</color>
 </resources>

@@ -1,5 +1,7 @@
 package com.example.tempo_isaq
 
+import android.annotation.SuppressLint
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -35,28 +37,41 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        binding.trocarTema.setOnCheckedChangeListener { buttonView, isChecked ->
+            if(isChecked){
+                binding.conteinerPrincipal.setBackgroundColor(Color.parseColor("#0B2B40"))
+            }else{
+                binding.conteinerPrincipal.setBackgroundColor(Color.parseColor("#0FC2C0"))
+            }
+        }
+        binding.btBuscar.setOnClickListener {
+            val cid = binding.editBuscarCidade.text.toString()
+            val retrofit: Api = Retrofit.Builder()
+                .addConverterFactory(GsonConverterFactory.create())
+                .baseUrl("https://api.openweathermap.org/data/2.5/")
+                .build()
+                .create(Api::class.java)
+            retrofit.weatherMap(cid, Const.api_key).enqueue(object : Callback<Main> {
+                override fun onResponse(p0: Call<Main>, response: Response<Main>) {
+                    if (response.isSuccessful) {
+                        respostaServidor(response)
+                    } else {
+                        Toast.makeText(applicationContext, "erro api", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<Main>, p1: Throwable) {
+                    Toast.makeText(applicationContext, "erro api", Toast.LENGTH_SHORT).show()
+                }
+            })
+        }
     }
 
     override fun onResume() {
         super.onResume()
+    }
 
-        val retrofit: Api = Retrofit.Builder()
-            .addConverterFactory(GsonConverterFactory.create())
-            .baseUrl("https://api.openweathermap.org/data/2.5/")
-            .build()
-            .create(Api::class.java)
-        retrofit.weatherMap("Barueri",Const.api_key).enqueue(object:Callback<Main>{
-            override fun onResponse(p0: Call<Main>, response: Response<Main>){
-                if (response.isSuccessful){
-                    respostaServidor(response)
-                }else{
-                    Toast.makeText(applicationContext,"erro api",Toast.LENGTH_SHORT).show()
-                }
-            }
-
-            override fun onFailure(call: Call<Main>, p1: Throwable) {
-                Toast.makeText(applicationContext,"erro api",Toast.LENGTH_SHORT).show()
-            }
+    @SuppressLint("SetTextI18n")
     private fun respostaServidor(response: Response<Main>){
         val main = response.body()!!.main
         val temp = main.temp
@@ -84,13 +99,16 @@ class MainActivity : AppCompatActivity() {
 
         //val temp = temp.main
         binding.txtTemperatura.setText("${decimalFormat.format(temp_c)} ºC")
-        if (pais.equals("BR")){
+        println(pais)
+        if (pais == "BR"){
             pais = "Brasil"
+            println("passei_aqui")
         }
-        if (pais.equals("US")){
+        else if (pais == "US"){
             pais = "E.U.S"
         }else{
             pais = "???"
+            println("passei_aqui")
         }
         println(nuvem)
         println(descricao)
@@ -140,8 +158,8 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-        })
-    }
+
+
 }
 
 
