@@ -1,6 +1,7 @@
 package com.example.tempo_isaq
 
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.activity.enableEdgeToEdge
@@ -8,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.tempo_isaq.consts.Const
+import com.example.tempo_isaq.databinding.ActivityMainBinding
 import com.example.tempo_isaq.model.Main
 import com.example.tempo_isaq.services.Api
 import com.google.gson.Gson
@@ -21,10 +23,13 @@ import java.text.DecimalFormat
 
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityMainBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -34,12 +39,13 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+
         val retrofit: Api = Retrofit.Builder()
             .addConverterFactory(GsonConverterFactory.create())
             .baseUrl("https://api.openweathermap.org/data/2.5/")
             .build()
             .create(Api::class.java)
-        retrofit.weatherMap("São Paulo",Const.api_key).enqueue(object:Callback<Main>{
+        retrofit.weatherMap("Barueri",Const.api_key).enqueue(object:Callback<Main>{
             override fun onResponse(p0: Call<Main>, response: Response<Main>){
                 if (response.isSuccessful){
                     respostaServidor(response)
@@ -64,11 +70,11 @@ class MainActivity : AppCompatActivity() {
         val temp_c_max = (temp_max.toDouble() - K_C)
         val temp_c_feels = (temp_feels.toDouble() - K_C)
         val decimalFormat = DecimalFormat("00")
-
         val cidade = response.body()!!.name
 
 
         val sys = response.body()!!.sys
+        var pais = sys.country
 
 
         val weather = response.body()!!.weather
@@ -77,6 +83,58 @@ class MainActivity : AppCompatActivity() {
 
 
         //val temp = temp.main
+        binding.txtTemperatura.setText("${decimalFormat.format(temp_c)} ºC")
+        if (pais.equals("BR")){
+            pais = "Brasil"
+        }
+        if (pais.equals("US")){
+            pais = "E.U.S"
+        }else{
+            pais = "???"
+        }
+        println(nuvem)
+        println(descricao)
+        if(nuvem.equals("Clouds") && descricao.equals("few clouds")){
+            binding.imgClima.setBackgroundResource(R.drawable.flewclouds)
+        }else if(nuvem.equals("Clouds") && descricao.equals("scattered clouds")){
+            binding.imgClima.setBackgroundResource(R.drawable.clouds)
+        }else if(nuvem.equals("Clouds") && descricao.equals("sbroken clouds")){
+            binding.imgClima.setBackgroundResource(R.drawable.clouds)
+        }else if(nuvem.equals("Clouds") && descricao.equals("overcast clouds")){
+            binding.imgClima.setBackgroundResource(R.drawable.brokenclouds)
+        }else if(nuvem.equals("Clear") && descricao.equals("clear sky")){
+            binding.imgClima.setBackgroundResource(R.drawable.clearsky)
+        }else if(nuvem.equals("Snow")){
+            binding.imgClima.setBackgroundResource(R.drawable.snow)
+        }else if(nuvem.equals("Rain")){
+            binding.imgClima.setBackgroundResource(R.drawable.rain)
+        }else if(nuvem.equals("Drizzle")){
+            binding.imgClima.setBackgroundResource(R.drawable.rain)
+        }else if(nuvem.equals("Thunderstorm")){
+            binding.imgClima.setBackgroundResource(R.drawable.trunderstorm)
+        }
+
+        val descricaoClima = when(descricao){
+            "clear sky" -> {
+                "Céu Limpo"
+            }
+            "few clouds" -> {
+                "Poucas nuvens"
+            }
+            "scattered clouds" -> {
+                "Nuvens dispersas"
+            }
+            else ->{
+                "tratando"
+            }
+
+        }
+        //binding.txtTemperatura.setText("${decimalFormat.format(temp_c)} ºC")
+
+        binding.txtPaisCidade.setText("$pais - $cidade")
+
+        binding.txtTituloInfo01.setText("Clima \n $descricaoClima \n\n Umidade \n $humi %")
+        binding.txtTituloInfo02.setText("Temp. Min \n ${decimalFormat.format(temp_c_min)} ºC \n\n Temp. Max \n ${decimalFormat.format(temp_c_max)} ºC ")
 
 
 
