@@ -17,6 +17,7 @@ import retrofit2.Call
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.text.DecimalFormat
 
 
 class MainActivity : AppCompatActivity() {
@@ -39,7 +40,7 @@ class MainActivity : AppCompatActivity() {
             .build()
             .create(Api::class.java)
         retrofit.weatherMap("São Paulo",Const.api_key).enqueue(object:Callback<Main>{
-            override fun onResponse(call: Call<Main>, response: Response<Main>){
+            override fun onResponse(p0: Call<Main>, response: Response<Main>){
                 if (response.isSuccessful){
                     respostaServidor(response)
                 }else{
@@ -52,17 +53,33 @@ class MainActivity : AppCompatActivity() {
             }
     private fun respostaServidor(response: Response<Main>){
         val main = response.body()!!.main
-        //val tempo = main.get("temp")
-        val sys = response.body()!!.sys
+        val temp = main.temp
+        val temp_feels = main.feels_like
+        val temp_min = main.temp_min
+        val temp_max = main.temp_max
+        val humi = main.humidity
+        val K_C = 273.15
+        val temp_c = (temp.toDouble() - K_C)
+        val temp_c_min = (temp_min.toDouble() - K_C)
+        val temp_c_max = (temp_max.toDouble() - K_C)
+        val temp_c_feels = (temp_feels.toDouble() - K_C)
+        val decimalFormat = DecimalFormat("00")
+
         val cidade = response.body()!!.name
-        println(cidade)
-        //val temp = main.get("temp").toString()
+
+
+        val sys = response.body()!!.sys
+
+
         val weather = response.body()!!.weather
         val nuvem = weather[0].main
         val descricao = weather[0].description
-        val K_C = 273.15
-        println(descricao)
-        //val temp_c = (temp.toDouble() - K_C)
+
+
+        //val temp = temp.main
+
+
+
     }
 
         })
